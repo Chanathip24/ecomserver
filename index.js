@@ -72,6 +72,7 @@ app.post("/login", (req, res) => {
         httpOnly: true,
         secure: true,
         maxAge: 1000 * 60 * 60 * 24,
+        sameSite: 'None'
       });
       res.status(200).json({ msg: "pass" });
       res.end();
