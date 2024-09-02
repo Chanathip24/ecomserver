@@ -140,5 +140,5 @@ app.get("/checkcookie", (req, res) => {
 app.listen(process.env.PORT, (err) => {
   if (err) return err;
   console.log(`connected to server on port ${process.env.PORT}`);
-  console.log(process.env.NODE_ENV);
+  
 });
