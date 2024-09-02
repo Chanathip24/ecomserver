@@ -6,34 +6,33 @@ const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const mysql = require("./services/server");
 const app = express();
+const {registervalidator,checkauthadmin,loginvalidator} = require("./services/middleware");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
+
+const limit = rateLimit({
+  windowMS: 1000 * 60 * 15, // 15 min
+  max: 100,
+  message: "Too many requests, please try again later",
+});
+
 //middleware
 app.use(
   cors({
     origin: [process.env.URL],
     credentials: true,
+    exposedHeaders: ["Authorization"],
   })
 );
 app.use(cookieparser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const checkauthadmin = require("./services/middleware");
+app.use(limit);
 
-//create cookie
-const setcookie = (res, key, value) => {
-  res.cookie(key, value, {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "None",
-    domain: "ecomserver-xgr1.onrender.com",
-  });
-};
-
-app.post("/register", (req, res) => {
+app.post("/register",registervalidator, (req, res) => {
   //check validatorresult
   const error = validationResult(req);
-  if (!error.isEmpty()) return res.status(500).json(error.errors[0].msg);
+  if (!error.isEmpty()) return res.json(error.errors[0].msg);
 
   const query = "INSERT INTO users(email,fname,lname,password) values(?)";
   bcrypt.hash(req.body.password, 10, (err, hash) => {
@@ -47,8 +46,7 @@ app.post("/register", (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
-      setcookie(res, "token", token);
-
+      res.setHeader("Authorization", `Bearer ${token}`);
       res.status(200).json({ message: "Insert success", value });
       res.end();
     });
@@ -79,20 +77,22 @@ app.delete("/users/delete/:id", checkauthadmin, (req, res) => {
 });
 
 //login
-app.post("/login", (req, res) => {
-  const query = "SELECT * FROM users where email=  ?";
+app.post("/login",loginvalidator, (req, res) => {
+  //validator
+  const error = validationResult(req)
+  if(!error.isEmpty()) return res.json(error.errors[0].msg)
 
-  //start query
+  //start
+  const query = "SELECT * FROM users where email=  ?";
   mysql.query(query, [req.body.email], (err, result) => {
     if (err) return res.status(500).json({ msg: err });
-
     if (result.length === 0)
       return res.status(404).json({ msg: "No user found." });
 
     const user = result[0];
     bcrypt.compare(req.body.password, user.password, (err, result) => {
       if (err) res.status(500).json({ msg: "Hash error" });
-      if (result === false)
+      if (!result )
         return res.status(403).json({ msg: "password is wrong." });
 
       const token = jwt.sign(
@@ -100,8 +100,8 @@ app.post("/login", (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
-      //create cookie
-      setcookie(res, "token", token);
+      //create header
+      res.setHeader("Authorization", `Bearer ${token}`);
       res.status(200).json({ msg: "pass" });
       res.end();
     });
@@ -125,16 +125,18 @@ app.get("/logout", (req, res) => {
 
 //checkcookie
 app.get("/checkcookie", (req, res) => {
-  const cookie = req.cookies["token"];
-  if (!cookie) return res.json({ msg: "no cookie" });
-  jwt.verify(cookie, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.json({ msg: "no cookie" });
-    const role = decoded.role;
-    res.json({ msg: "pass", role });
-  });
+  const token = req.headers["authorization"];
+  
+  const realToken = token && token.split(" ")[1];
+  if (realToken == null) return res.status(401).json({ msg: "Unauthorize" });
 
-  res.end();
+  jwt.verify(realToken, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return res.json({ msg: "Unauthorized" });
+    res.json(decoded);
+  });
 });
+
+
 app.listen(process.env.PORT, (err) => {
   if (err) return err;
   console.log(`connected to server on port ${process.env.PORT}`);
