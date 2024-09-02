@@ -17,7 +17,6 @@ app.use(
 app.use(cookieparser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const registervalidator = require("./services/middleware");
 const checkauthadmin = require("./services/middleware")
 
 //create cookie
@@ -26,12 +25,12 @@ const setcookie = (res,key,value)=>{
     maxAge: 1000 * 60 * 60 * 24,
     httpOnly: true,
     secure: process.env.NODE_ENV ==='production',
-    sameSite : "none"
+    sameSite : "None"
   });
 
 }
 
-app.post("/register", registervalidator, (req, res) => {
+app.post("/register", (req, res) => {
   //check validatorresult
   const error = validationResult(req);
   if (!error.isEmpty()) return res.status(500).json(error.errors[0].msg);
