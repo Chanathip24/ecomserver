@@ -113,7 +113,7 @@ app.get('/logout', (req, res) => {
   if (!token) {
     return res.json({ msg: token });
   }
-  res.clearCookie('token');
+  res.clearCookie('token',{sameSite:"None"});
   res.json({ msg: "pass" });
 });
 
