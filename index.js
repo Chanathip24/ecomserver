@@ -25,7 +25,7 @@ const setcookie = (res,key,value)=>{
     maxAge: 1000 * 60 * 60 * 24,
     httpOnly: true,
     secure: process.env.NODE_ENV ==='production',
-    sameSite : "None"
+    //sameSite : "None"
   });
 
 }
@@ -43,7 +43,7 @@ app.post("/register", (req, res) => {
     mysql.query(query, [data], (err, value) => {
       if (err) return res.status(500).json(err);
       const token = jwt.sign(
-        { email: req.body.email },
+        { email: req.body.email , role : "MEMBER" },
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
