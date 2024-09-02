@@ -113,7 +113,7 @@ app.get('/logout', (req, res) => {
   if (!token) {
     return res.json({ msg: token });
   }
-  res.clearCookie('token',{sameSite:"None"});
+  res.clearCookie('token',{sameSite:"None",secure: process.env.NODE_ENV ==='production',path: '/'});
   res.json({ msg: "pass" });
 });
 
@@ -132,5 +132,5 @@ app.get("/checkcookie", (req, res) => {
 app.listen(process.env.PORT, (err) => {
   if (err) return err;
   console.log(`connected to server on port ${process.env.PORT}`);
-
+  console.log(process.env.NODE_ENV)
 });
