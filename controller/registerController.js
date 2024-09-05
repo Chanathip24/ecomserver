@@ -14,7 +14,7 @@ const registercontroller = (req, res) => {
   
       const data = [req.body.email, req.body.fname, req.body.lname, hash];
       mysql.query(query, [data], (err, value) => {
-        if (err) return res.status(500).json(err);
+        if (err) return res.json("This email is already registered.").status(500);
         const token = jwt.sign(
           { email: req.body.email, role: "MEMBER" },
           process.env.JWT_SECRET,
