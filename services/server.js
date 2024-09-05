@@ -10,7 +10,8 @@ const pool = sql.createPool({
   database : `${process.env.DB_NAME}`,
   ssl: {
     rejectUnauthorized: true // Ensures the connection is secure
-  }
+  },
+  idleTimeout : 60000,
   
 })
 
