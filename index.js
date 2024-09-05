@@ -12,20 +12,7 @@ const limit = rateLimit({
   message: "Too many requests, please try again later",
 });
 
-//ping server
-setInterval(()=>{
-  mysql.query("SELECT 1")
-},60000)
 
-//warmup pool
-const warmUpPool = () => {
-  for (let i = 0; i < 2; i++) {  // Open 2 connections
-    mysql.query('SELECT 1', (error) => {
-      if (error) console.error('Error warming up the pool:', error);
-    });
-  }
-};
-warmUpPool()
 //routes
 const userRoute = require('./routes/userRoute')
 const register = require('./routes/register')
