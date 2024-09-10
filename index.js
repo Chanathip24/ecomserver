@@ -19,11 +19,7 @@ const register = require('./routes/register')
 const login = require('./routes/login')
 const token = require('./routes/token')
 
-//ping
-setInterval(function () {
-    mysql.query('SELECT 1');
-    
-}, 120000);
+
 //middleware
 const {registervalidator,checkauthadmin,loginvalidator} = require("./services/middleware");
 app.use(

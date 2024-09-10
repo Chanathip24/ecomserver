@@ -1,7 +1,7 @@
 const mysql = require("../services/server");
 
 const getall = (req, res) => {
-  const query = "SELECT id,email,fname,lname,created_at,role FROM users";
+  const query = "SELECT id,email,fname,lname,role FROM users";
   mysql.query(query, (err, result) => {
     if (err) return res.status(500).json({ err });
     if (result.length === 0)

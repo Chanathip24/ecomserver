@@ -16,12 +16,12 @@ const registercontroller = (req, res) => {
       mysql.query(query, [data], (err, value) => {
         if (err) return res.json("This email is already registered.").status(500);
         const token = jwt.sign(
-          { email: req.body.email, role: "MEMBER" },
+          { email: req.body.email, role: "CUSTOMER" },
           process.env.JWT_SECRET,
           { expiresIn: "1d" }
         );
         res.setHeader("Authorization", `Bearer ${token}`);
-        res.status(200).json({ message: "Insert success", value });
+        res.status(200).json({ message: "Insert success",value});
         res.end();
       });
     });
