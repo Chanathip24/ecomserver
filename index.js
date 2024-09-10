@@ -46,7 +46,9 @@ app.use("/login",loginvalidator,login)
 app.use('/users',checkauthadmin,userRoute)
 //checktoken
 app.use("/checkcookie", token);
-
+app.get('/',(req,res)=>{
+  res.send("API IS WORKING")
+})
 
 app.listen(process.env.PORT, (err) => {
   if (err) return err;
