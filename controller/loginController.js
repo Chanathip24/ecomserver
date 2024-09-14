@@ -19,7 +19,7 @@ const logincontroller = (req, res) => {
       bcrypt.compare(req.body.password, user.password, (err, result) => {
         if (err) res.status(500).json({ msg: "Hash error" });
         if (!result )
-          return res.status(403).json({ msg: "password is wrong." });
+          return res.status(403).json({ msg: "Password is wrong." });
   
         const token = jwt.sign(
           { email: req.body.email, role: user.role },

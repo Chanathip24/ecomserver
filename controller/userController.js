@@ -21,4 +21,4 @@ const deleteuser = (req, res) => {
   });
 }
 
-module.exports = { getall,deleteuser };
+module.exports = { getall,deleteuser};
